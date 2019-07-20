@@ -1,7 +1,7 @@
 {
-  "name": "jen",
-  "description": "Jen - a nice way to build static websites.",
+  "name": "appyay/jen",
   "version": "1.0.0",
+  "description": "Jen - a nice way to build static websites.",
   "author": "Richard Lovell",
   "license": "MIT",
   "main": "index.js",

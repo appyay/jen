@@ -91,5 +91,4 @@ So, if a blog entry has an ID of "abc123", the detail page would be accessible a
 /blogs/abc123
 ````
 ## TODOs
-* Package for NPM
 * Improve modularity of build
