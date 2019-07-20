@@ -52,8 +52,8 @@
 
   const data = require('gulp-data')
 
-  const projectRoot = path.join(__dirname, '../')
-  const templatesPath = `${projectRoot}/src/templates/pages`
+  const projectRoot = path.join(__dirname, '../../../')
+  const templatesPath = `${projectRoot}src/templates/pages`
 
   const dataPath = `${projectRoot}src/data`
 

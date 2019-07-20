@@ -1,14 +1,16 @@
 {
   "name": "@richjava/jen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Jen - a nice way to build static websites.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appyay/jen.git"
+  },
   "author": "Richard Lovell",
   "license": "MIT",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
+  "scripts": {},
+  "dependencies": {
     "axios": "^0.18.0",
     "chalk": "^2.4.2",
     "fs-path": "0.0.24",
