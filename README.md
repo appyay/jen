@@ -31,7 +31,7 @@ First, create a gulpfile.js in the root of your project and include the followin
 ### Require the dependencies:
 ````
 const gulp = require('gulp');
-require('./jen/index.js')(gulp, {
+require('jen')(gulp, {
   dataUrl: process.env.DATA_URL
 });
 ````
