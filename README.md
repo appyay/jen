@@ -7,7 +7,7 @@ Jen leverages Mozilla's rich and powerful [Nunjucks](https://mozilla.github.io/n
 
 Aside from Nunjucks and Gulp, Jen is completely unopinionated about what technologies are used, putting the control in the hands of the developer.
 
-A starter project for Jen is available here: [Jen Starter](). The build process for this project includes:
+A starter project for Jen is available here: [Jen Starter](https://github.com/appyay/jen-starter). The build process for this project includes:
 * Sass preprocessing
 * Nunjucks/HTML for templating
 * CSS concatenation and minification
