@@ -148,7 +148,7 @@
       manageEnv: addPathFilter
     }
     const folders = getPages(templatesPath)
-    let pageType = 'master';
+    let pageType = 'master'
 
     /**
      * Get the data ready for templating.
@@ -195,11 +195,11 @@
      */
     function addPathFilter (environment) {
       environment.addFilter('path', function (name) {
-        let path = '';
-        if(pageType === 'detail'){
-          path = '../';
+        let path = ''
+        if (pageType === 'detail') {
+          path = '../'
         }
-        return name === 'home' ? '' : path += '../'
+        return name === 'home' ? '' : (path += '../')
       })
     }
 
@@ -255,7 +255,6 @@
      * Render the page templates.
      */
     async function renderPageTemplates () {
-      
       for (let i = 0; i < folders.length; i++) {
         const folder = folders[i]
         let folderPath = templatesPath + '/' + folder
@@ -285,7 +284,6 @@
             )
           )
       }
-  
     }
 
     /**
@@ -299,9 +297,8 @@
      * Render the detail templates.
      */
     async function renderDetailTemplates (folder, subfolder, format) {
-      
-      const folderPath = path.join(templatesPath, folder, 'detail');
-      let hasScripts = await checkHasScripts(folderPath);
+      const folderPath = path.join(templatesPath, folder, 'detail')
+      let hasScripts = await checkHasScripts(folderPath)
       for (let j = 0; j < globalData.db[folder].items.length; j++) {
         let item = globalData.db[folder].items[j]
         gulp
@@ -311,7 +308,7 @@
             data(function () {
               globalData.item = item
               globalData.jen = { page: {} }
-              globalData.jen.page.name = `${folder}-detail`;
+              globalData.jen.page.name = `${folder}-detail`
               globalData.jen.page.hasScripts = hasScripts
               return globalData
             }).on('error', gutil.log)
@@ -320,14 +317,13 @@
           .pipe(inlinesource())
           .pipe(gulp.dest(`${projectRoot}/public/${folder}/${item.id}`))
       }
-   
     }
 
     /**
      * Setup and render detail templates.
      */
     async function processDetailTemplates () {
-      pageType = 'detail';
+      pageType = 'detail'
       for (let i = 0; i < folders.length; i++) {
         const folder = folders[i]
         let subfolders = getPages(templatesPath + '/' + folder)
@@ -363,13 +359,17 @@
     JEN
     ***************/
 
-    gulp.task('jen:build', (done) => (
+    gulp.task('jen:build-remote', done =>
       gulp.series('jen:load', 'jen:templates', 'jen:details')(done)
-    ))
+    )
 
-    gulp.task('jen:dev', (done) => (
+    gulp.task('jen:build', done =>
+      gulp.series('jen:templates', 'jen:details')(done)
+    )
+
+    gulp.task('jen:dev', done =>
       gulp.series('jen:dev-setup', 'jen:build')(done)
-    ))
+    )
   }
 
   module.exports = Jen
