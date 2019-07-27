@@ -24,8 +24,6 @@ npm install
 ````
 
 ## Project setup
-Jen will be available as an NMP package soon, but in the meantime you can put the jen project in the root of your project and access it through your project's gulpfile:
-
 First, create a gulpfile.js in the root of your project and include the following:
 
 ### Require the dependencies:
