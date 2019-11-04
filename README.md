@@ -13,7 +13,7 @@ A starter project for Jen is available here: [Jen Starter](https://github.com/ap
 * CSS concatenation and minification
 * Javascript concatenation and uglification
 * Multi-browser live browser reload
-* Master-detail pattern
+* Master-detail pattern with pagination
 * A modular, reusable design
 
 
@@ -24,7 +24,7 @@ npm install
 ````
 
 ## Project setup
-First, create a gulpfile.js in the root of your project and include the following:
+First, create a ```gulpfile.js``` in the root of your project and include the following:
 
 ### Require the dependencies:
 ````
@@ -72,21 +72,58 @@ Data can be loaded in three ways:
 gulp jen:dev
 ````
 
-## Detail pages
-If your website requires use of the master-detail pattern (i.e. a list page and a detail page), you can achieve this by putting a "detail" folder inside your page folder. For example:
+## Master-detail pattern
+Jen enables facilitation of the master-detail pattern (i.e. a list pages and accompanying detail pages for each list item).
+
+### Detail templates
+If your website requires use of the master-detail pattern, you can achieve this by putting a "detail" folder inside your page folder. For example:
 ````
 ...
         |--pages
         ...
             |--blog // page folder
                 |--detail
-                    |--index.html // this is your detail page
-                |--index.html //this is your list page
+                    |--index.html // this is your detail template
+                |--index.html //this is your list (master) template
 ...
 ````
 So, if a blog entry has an ID of "abc123", the detail page would be accessible at:
 ````
 /blogs/abc123
 ````
-## TODOs
-* Improve modularity of build
+
+The item for display on the detail page can be accessed through the ```jen.item``` global variable.
+
+### List (master) templates
+The list template will be the ```index.html``` file in the root of the page folder. The items to needed to form the list can be accessed through the global ```db``` variable. For example, in your list template:
+
+````
+{% for feature in db.features.items %}
+  <h2>{{feature.fields.title}}</h2>
+{% endfor %}
+````
+
+#### Pagination
+The following variables will be available in list templates for facilitating pagination of list items:
+* jen.pagination.offset
+* jen.pagination.currentPage
+* jen.pagination.total
+* jen.pagination.itemsPerPage
+
+The default number of items per page is 50. To specify another value, pass it into Jen through the options object in ```gulpfile.js```:
+
+````
+const itemsPerPage = 20;
+require('@richjava/jen')(gulp, {
+  itemsPerPage: itemsPerPage
+});
+````
+
+In your template, you can loop through items in a range like so:
+````
+{% for i in range(jen.pagination.offset, jen.pagination.offset + jen.pagination.itemsPerPage ) %}
+    <h2>{{db.features.items[i].fields.title}}</h2>
+{% endfor %}
+````
+
+See the [Jen Starter](https://github.com/appyay/jen-starter) for an example of how to implement a pagination component.
