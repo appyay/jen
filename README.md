@@ -92,10 +92,10 @@ So, if a blog entry has an ID of "abc123", the detail page would be accessible a
 /blogs/abc123
 ````
 
-The item for display on the detail page can be accessed through the ```jen.item``` global variable.
+The item for display on the detail page can be accessed through the ```jen.item``` variable.
 
 ### List (master) templates
-The list template will be the ```index.html``` file in the root of the page folder. The items to needed to form the list can be accessed through the global ```db``` variable. For example, in your list template:
+The list template will be the ```index.html``` file in the root of the page folder. The items to needed to form the list can be accessed through the global ```db``` global variable. For example, in your list template:
 
 ````
 {% for feature in db.features.items %}

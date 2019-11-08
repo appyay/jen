@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-; (function () {
+;(function () {
   'use strict'
   const gutil = require('gulp-util')
   const chalk = require('chalk')
@@ -45,9 +45,10 @@
   const info = chalk.keyword('lightblue')
   const success = chalk.keyword('lightgreen')
 
-  let globalData, hasData;
+  let globalData = {};
+  let hasData;
   const DEFAULT_ITEMS_PER_PAGE = 50;
-
+  
   /**
    * Jen class.
    * @param gulp Project Gulp object
@@ -57,7 +58,6 @@
     if (!options.itemsPerPage) {
       options.itemsPerPage = DEFAULT_ITEMS_PER_PAGE;
     }
-    let pageConfig;
 
     /*****************
      DATA
@@ -143,7 +143,7 @@
      * Get the data ready for templating.
      * Data is retrieved from all files kept in the data directory.
      */
-    async function init() {
+    async function init () {
       const dir = `${projectRoot}src/data/`
       return new Promise((resolve, reject) => {
         fs.readdir(dir, (err, files) => {
@@ -159,9 +159,18 @@
           resolve(dataArray)
         })
       }).then(dataArray => {
-        globalData = dataArray.reduce(function (result, current) {
+        // globalData.jen = dataArray.reduce(function (result, current) {
+        //   return Object.assign(result, current)
+        // }, {})
+        let pageData = {
+          page: {},
+          item: {},
+          pagination: {} 
+        }
+        let projectData =  dataArray.reduce(function (result, current) {
           return Object.assign(result, current)
-        }, {})
+        }, {});
+         globalData.jen = {...pageData, ...projectData};
       })
     }
 
@@ -170,7 +179,7 @@
      * Pages are folders within the templates directory.
      * @param {String} dir
      */
-    function getPages(dir) {
+    function getPages (dir) {
       return fs.readdirSync(dir).filter(function (file) {
         return fs.statSync(path.join(dir, file)).isDirectory()
       })
@@ -182,7 +191,7 @@
      * folder, whereas the other pages will sit one level deeper.
      * @param {NunjucksEnvironment} environment
      */
-    function addPathFilter(environment) {
+    function addPathFilter (environment) {
       environment.addFilter('path', function (name) {
         let path = ''
         if (pageType === 'detail') {
@@ -200,7 +209,7 @@
      * within a "components" directory.
      * @param {String} path
      */
-    async function checkHasPartial(path) {
+    async function checkHasPartial (path) {
       return new Promise(function (resolve, reject) {
         fs.readdir(path, (err, files) => {
           if (err) reject(err)
@@ -224,7 +233,7 @@
      * Used to set up the inlining of page-scoped scripts.
      * @param {String} path
      */
-    async function checkHasScripts(path) {
+    async function checkHasScripts (path) {
       return new Promise(function (resolve, reject) {
         fs.readdir(path, (err, files) => {
           if (err) reject(err)
@@ -248,28 +257,27 @@
      * @param {String} folderPath 
      * @param {Boolean} hasScripts 
      */
-    async function generatePage(folder, format, folderPath, hasScripts) {
-      pageConfig = await getPageConfig();
-      gulp
-        .src([path.join(folderPath, format)])
-        .pipe(
-          data(function () {
-            //set page config
-            pageConfig.jen.page.name = folder;
-            pageConfig.jen.page.hasScripts = hasScripts;
-            return { ...globalData, ...pageConfig }
-          }).on('error', gutil.log)
-        )
-        .pipe(concat('index.html'))
-        .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
-        .pipe(inlinesource())
-        .pipe(gulpif(folder === 'home', gulp.dest(`${projectRoot}/public`)))
-        .pipe(
-          gulpif(
-            folder !== 'home',
-            gulp.dest(`${projectRoot}/public/${folder}`)
+    async function generatePage (folder, format, folderPath, hasScripts) {
+        gulp
+          .src([path.join(folderPath, format)])
+          .pipe(
+            data(function () {
+              //set page config
+              globalData.jen.page.name = folder;
+              globalData.jen.page.hasScripts = hasScripts;
+             return globalData
+            }).on('error', gutil.log)
           )
-        )
+          .pipe(concat('index.html'))
+          .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
+          .pipe(inlinesource())
+          .pipe(gulpif(folder === 'home', gulp.dest(`${projectRoot}/public`)))
+          .pipe(
+            gulpif(
+              folder !== 'home',
+              gulp.dest(`${projectRoot}/public/${folder}`)
+            )
+          )
     }
 
     /**
@@ -278,11 +286,11 @@
      * @param {String} subfolder 
      * @param {String} format 
      */
-    async function generateDetailPages(folder, subfolder, format) {
+    async function generateDetailPages (folder, subfolder, format) {
       pageType = 'detail';
       const folderPath = path.join(templatesPath, folder, 'detail')
       let hasScripts = await checkHasScripts(folderPath)
-      let items = globalData.db[folder].items;
+      let items = globalData.jen.db[folder].items;
       let currentPage = 1;
       for (let j = 0; j < items.length; j++) {
         let item = items[j]
@@ -292,34 +300,37 @@
           .pipe(
             data(function () {
               //set page config
-              pageConfig.jen.item = item;
-              pageConfig.jen.page.name = `${folder}-detail`;
-              pageConfig.jen.page.hasScripts = hasScripts;
-              return { ...globalData, ...pageConfig }
+              globalData.jen.item = item;
+              globalData.jen.page.name = `${folder}-detail`;
+              globalData.jen.page.hasScripts = hasScripts;
+              return globalData
             }).on('error', gutil.log)
           )
           .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
           .pipe(inlinesource())
           .pipe(gulp.dest(`${projectRoot}/public/${folder}/${item.id}`))
-        let paginationOptions = {
-          folder: folder,
-          templatesPath: templatesPath,
-          items: items,
-          currentPage: currentPage,
-          index: j
-        };
-        await generatePaginationPage(paginationOptions);
-        currentPage = Math.ceil((j + 1) / options.itemsPerPage);
-      }
+          currentPage = Math.ceil((j + 1)/options.itemsPerPage);
+          let paginationOptions = {
+            folder: folder,
+            templatesPath: templatesPath,
+            noOfItems: items.length,
+            currentPage: currentPage,
+            index: j
+          };
+          await generatePaginationPage(paginationOptions)
+          
+          
+          
+      } 
     }
 
     /**
      * Generate a pagination page.
      * @param {Object} paginationOptions 
      */
-    function generatePaginationPage(paginationOptions) {
-
-      return new Promise(async function (resolve, reject) {
+    function generatePaginationPage(paginationOptions){
+      
+      return new Promise(async function(resolve, reject){
         let folderPath = paginationOptions.templatesPath + '/' + paginationOptions.folder;
         let [hasScripts, hasPartial] = await Promise.all([
           checkHasScripts(folderPath),
@@ -327,27 +338,27 @@
         ])
         let format = hasPartial === true ? '/**/_*.html' : '/*.html';
         let i = paginationOptions.index;
-        if (i === 0 || (i + 1) > paginationOptions.currentPage * options.itemsPerPage) {
-          let offset = i === 0 ? 0 : paginationOptions.currentPage * options.itemsPerPage;
-          pageConfig = await getPageConfig();
-          gulp
-            .src([path.join(folderPath, format)])
-            .pipe(
-              data(function () {
-                //set page config          
-                pageConfig.jen.page.name = paginationOptions.folder;
-                pageConfig.jen.page.hasScripts = hasScripts;
-                pageConfig.jen.pagination.currentPage = paginationOptions.currentPage
-                pageConfig.jen.pagination.total = paginationOptions.items.length
-                pageConfig.jen.pagination.offset = offset
-                return { ...globalData, ...pageConfig }
-              }).on('error', gutil.log)
-            )
-            .pipe(concat('index.html'))
-            .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
-            .pipe(inlinesource())
-            .pipe(gulp.dest(`${projectRoot}/public/${paginationOptions.folder}/page-${paginationOptions.currentPage}`))
-            .on('end', resolve)
+        if(i === 0 || i === (paginationOptions.currentPage - 1) * options.itemsPerPage){
+          let offset = i === 0 ? 0 : (paginationOptions.currentPage - 1) * options.itemsPerPage;
+        gulp
+          .src([path.join(folderPath, format)])
+          .pipe(
+            data(function () {
+              //set page config          
+              globalData.jen.page.name = paginationOptions.folder;
+              globalData.jen.page.hasScripts = hasScripts;
+              globalData.jen.pagination.currentPage = paginationOptions.currentPage
+              globalData.jen.pagination.total = paginationOptions.noOfItems
+              globalData.jen.pagination.itemsPerPage = options.itemsPerPage
+              globalData.jen.pagination.offset = offset
+              return globalData
+            }).on('error', gutil.log)
+          )
+          .pipe(concat('index.html'))
+          .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
+          .pipe(inlinesource())
+          .pipe(gulp.dest(`${projectRoot}/public/${paginationOptions.folder}/page-${paginationOptions.currentPage}`))
+          .on('end', resolve)
         } else {
           resolve();
         }
@@ -357,7 +368,7 @@
     /**
      * Process the templates to generate pages.
      */
-    async function processTemplates() {
+    async function processTemplates(){
       for (let i = 0; i < folders.length; i++) {
         const folder = folders[i]
         let subfolders = getPages(templatesPath + '/' + folder)
@@ -369,57 +380,40 @@
             let detailPath = path.join(templatesPath, folder, subfolder)
             let hasPartial = await checkHasPartial(detailPath)
             let format = hasPartial === true ? '/_*.html' : '/*.html'
-            if (globalData.db[folder].items) {
+            if (globalData.jen.db[folder].items) {
               await generateDetailPages(folder, subfolder, format)
               isMasterDetail = true;
               break;
-            }
-          }
+            } 
+          } 
         }
-        if (!isMasterDetail) {
+        if(!isMasterDetail) {
           let folderPath = templatesPath + '/' + folder
-          let [hasScripts, hasPartial] = await Promise.all([
-            checkHasScripts(folderPath),
-            checkHasPartial(folderPath)
-          ])
-          let format = hasPartial === true ? '/**/_*.html' : '/*.html'
+        let [hasScripts, hasPartial] = await Promise.all([
+          checkHasScripts(folderPath),
+          checkHasPartial(folderPath)
+        ])
+        let format = hasPartial === true ? '/**/_*.html' : '/*.html'
           generatePage(folder, format, folderPath, hasScripts);
         }
       }
     }
-
-    /**
-     * Get the page config object.
-     * This object will be available to all templates, together with the global 
-     * data (from the "data" directory).
-     */
-    async function getPageConfig() {
-      return new Promise((resolve) => {
-        resolve({
-          jen: {
-            page: {},
-            item: {},
-            pagination: {}
-          }
-        });
-      })
-    }
-
+    
     /**************
     JEN GULP TASKS
     ***************/
 
-    gulp.task('jen:init', function (done) {
-      init().then(function () {
-        done()
-      })
+   gulp.task('jen:init', function (done) {
+    init().then(function () {
+      done()
     })
+  })
 
-    gulp.task('jen:templates', function (done) {
-      processTemplates().then(function () {
-        done()
-      })
+  gulp.task('jen:templates', function (done) {
+    processTemplates().then(function () {
+      done()
     })
+  })
 
     gulp.task('jen:build-remote', done =>
       gulp.series('jen:load', 'jen:init', 'jen:templates')(done)
