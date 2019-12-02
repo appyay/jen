@@ -2,10 +2,12 @@
 
 > Jen is a lightweight Javascript library for rapid development of static websites. It was built with a focus on ease of use for developers and working seamlessly with headless APIs and static website hosting.
 
-## How does it work?
-Jen leverages Mozilla's rich and powerful [Nunjucks](https://mozilla.github.io/nunjucks/) templating language together with Gulp tasks to manage project template files and generate an optimised public directory. Data for the application is retrieved from a JSON data file in the project, making it especially suitable for building API driven websites. The data file can be populated on-demand during development or on-build for in-production static websites.
+This project was originally conceived to enable producing a static website from an existing HTML template an easy and intuitive process.
 
-Aside from Nunjucks and Gulp, Jen is completely unopinionated about what technologies are used, putting the control in the hands of the developer.
+## How does it work?
+Jen leverages Mozilla's rich and powerful [Nunjucks](https://mozilla.github.io/nunjucks/) templating language together with Gulp tasks to manage project template files and generate a public directory. Data for the application is retrieved from a JSON data file in the project, making it especially suitable for building API driven websites. The data file can be populated on-demand during development or on-build for in-production static websites.
+
+Aside from Nunjucks and Gulp, Jen is completely unopinionated about what technologies are used, putting the control in the hands of the developer. 
 
 A starter project for Jen is available here: [Jen Starter](https://github.com/appyay/jen-starter). The build process for this project includes:
 * Sass preprocessing
@@ -15,7 +17,6 @@ A starter project for Jen is available here: [Jen Starter](https://github.com/ap
 * Multi-browser live browser reload
 * Master-detail pattern with pagination
 * A modular, reusable design
-
 
 ## Installation
 Install the dependencies:
@@ -92,13 +93,13 @@ So, if a blog entry has an ID of "abc123", the detail page would be accessible a
 /blogs/abc123
 ````
 
-The item for display on the detail page can be accessed through the ```jen.item``` variable.
+The item for display on the detail page can be accessed through the ```jen.item``` global variable (only available on detail pages).
 
 ### List (master) templates
-The list template will be the ```index.html``` file in the root of the page folder. The items to needed to form the list can be accessed through the global ```db``` global variable. For example, in your list template:
+The list template will be the ```index.html``` file in the root of the page folder. The items to needed to form the list can be accessed through the global ```jen.db``` variable. For example, in your list template:
 
 ````
-{% for feature in db.features.items %}
+{% for feature in jen.db.features.items %}
   <h2>{{feature.fields.title}}</h2>
 {% endfor %}
 ````
@@ -126,4 +127,4 @@ In your template, you can loop through items in a range like so:
 {% endfor %}
 ````
 
-See the [Jen Starter](https://github.com/appyay/jen-starter) for an example of how to implement a pagination component.
+See the [Jen Starter](https://github.com/appyay/jen-starter) for an example of how to implement a pagination component and more!

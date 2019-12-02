@@ -293,7 +293,10 @@
       let items = globalData.jen.db[folder].items;
       let currentPage = 1;
       for (let j = 0; j < items.length; j++) {
-        let item = items[j]
+        let item = items[j];
+        if (!item.slug) {
+          throw new Error('Jen: All items must have a slug');
+        }
         gulp
           .src(path.join(templatesPath, folder, subfolder, format))
           .pipe(concat('index.html'))
@@ -308,7 +311,7 @@
           )
           .pipe(nunjucksRender(nunjucksOptions).on('error', gutil.log))
           .pipe(inlinesource())
-          .pipe(gulp.dest(`${projectRoot}/public/${folder}/${item.id}`))
+          .pipe(gulp.dest(`${projectRoot}/public/${folder}/${item.slug}`))
           currentPage = Math.ceil((j + 1)/options.itemsPerPage);
           let paginationOptions = {
             folder: folder,
