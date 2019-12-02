@@ -283,11 +283,11 @@
      * @param {String} subfolder 
      * @param {String} format 
      */
-    async function generateDetailPages (folder, subfolder, format) {
+    async function generateDetailPages (folder, camelCaseFolder, subfolder, format) {
       pageType = 'detail';
       const folderPath = path.join(templatesPath, folder, 'detail')
       let hasScripts = await checkHasScripts(folderPath)
-      let items = globalData.jen.db[folder].items;
+      let items = globalData.jen.db[camelCaseFolder].items;
       let currentPage = 1;
       for (let j = 0; j < items.length; j++) {
         let item = items[j];
@@ -380,8 +380,14 @@
             let detailPath = path.join(templatesPath, folder, subfolder)
             let hasPartial = await checkHasPartial(detailPath)
             let format = hasPartial === true ? '/_*.html' : '/*.html'
-            if (globalData.jen.db[folder].items) {
-              await generateDetailPages(folder, subfolder, format)
+            //data properties are camel-cased whereas folders are lower case with dashes
+            let camelCaseFolder = folder;
+            if(folder.includes('-')){
+              camelCaseFolder = folder.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+              console.log('-------------->', camelCaseFolder)
+            }
+            if (globalData.jen.db[camelCaseFolder].items) {
+              await generateDetailPages(folder, camelCaseFolder, subfolder, format)
               isMasterDetail = true;
               break;
             } 
