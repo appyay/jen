@@ -159,9 +159,6 @@
           resolve(dataArray)
         })
       }).then(dataArray => {
-        // globalData.jen = dataArray.reduce(function (result, current) {
-        //   return Object.assign(result, current)
-        // }, {})
         let pageData = {
           page: {},
           item: {},
@@ -170,7 +167,7 @@
         let projectData =  dataArray.reduce(function (result, current) {
           return Object.assign(result, current)
         }, {});
-         globalData.jen = {...pageData, ...projectData};
+         globalData.jen = {...pageData, ...projectData, env: process.env};
       })
     }
 
